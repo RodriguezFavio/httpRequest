@@ -8,30 +8,19 @@ const postList = document.querySelector("ul");
 let postsLoaded = false;
 const deletedPostElement = [];
 
-const sendHttpRequest = (method, url, data = null) => {
-  const promise = new Promise((resolve, reject) => {
-    const xhr = new XMLHttpRequest();
-    xhr.open(method, url);
+const sendHttpRequest = async (method, url, data = null) => {
 
-    xhr.responseType = "json";
+  const config = {
+    method: method,
+  }
 
-    xhr.onload = () => {
-      if(xhr.status >= 200 && xhr.status < 300){
-        resolve(xhr.response);
-      } else {
-        reject( new Error("Something went wrong!"));
-      }
-    };
+  if(data){
+    config.body = JSON.stringify(data);
+  }
 
-    xhr.onerror = () => {
-      reject( new Error ("Failed to send request!"));
-    }
-
-
-    xhr.send(JSON.stringify(data));
-  });
-
-  return promise;
+  const response = await fetch(url, config);
+  return await response.json();
+  
 };
 
 const fetchPosts = async () => {
@@ -39,14 +28,14 @@ const fetchPosts = async () => {
     return;
   }
 
-  try{
+  try {
     const responseData = await sendHttpRequest(
       "GET",
       "https://jsonplaceholder.typicode.com/posts"
     );
-  
+
     const listOfPost = responseData;
-  
+
     for (const post of listOfPost) {
       const postEl = document.importNode(postTemplate.content, true);
       postEl.querySelector("h2").textContent = post.title.toUpperCase();
@@ -54,7 +43,7 @@ const fetchPosts = async () => {
       postEl.querySelector("li").id = post.id;
       listElement.append(postEl);
     }
-  } catch (error){
+  } catch (error) {
     console.error("Error getting post: ", error.message);
   }
   postsLoaded = true;
@@ -125,9 +114,8 @@ postList.addEventListener("click", async (event) => {
   }
 });
 
-
 restoreButton.addEventListener("click", async () => {
-  if(deletedPostElement.length === 0) {
+  if (deletedPostElement.length === 0) {
     return;
   }
 
