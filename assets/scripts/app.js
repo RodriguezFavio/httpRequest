@@ -9,16 +9,25 @@ let postsLoaded = false;
 const deletedPostElement = [];
 
 const sendHttpRequest = (method, url, data = null) => {
-  const promise = new Promise((resolve) => {
+  const promise = new Promise((resolve, reject) => {
     const xhr = new XMLHttpRequest();
     xhr.open(method, url);
 
-    xhr.responseType = "json"; //metodo 2
+    xhr.responseType = "json";
 
     xhr.onload = () => {
-      // const listOfPost = JSON.parse(xhr.response); //metodo 1
-      resolve(xhr.response);
+      if(xhr.status >= 200 && xhr.status < 300){
+        resolve(xhr.response);
+      } else {
+        reject( new Error("Something went wrong!"));
+      }
     };
+
+    xhr.onerror = () => {
+      reject( new Error ("Failed to send request!"));
+    }
+
+
     xhr.send(JSON.stringify(data));
   });
 
