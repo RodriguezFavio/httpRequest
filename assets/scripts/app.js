@@ -127,6 +127,10 @@ postList.addEventListener("click", async (event) => {
 
 
 restoreButton.addEventListener("click", async () => {
+  if(deletedPostElement.length === 0) {
+    return;
+  }
+
   for (const deletedElement of deletedPostElement) {
     try {
       const createdPostResponse = await sendHttpRequest(
