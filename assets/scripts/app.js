@@ -39,21 +39,24 @@ const fetchPosts = async () => {
     return;
   }
 
-  const responseData = await sendHttpRequest(
-    "GET",
-    "https://jsonplaceholder.typicode.com/posts"
-  );
-
-  const listOfPost = responseData;
-
-  for (const post of listOfPost) {
-    const postEl = document.importNode(postTemplate.content, true);
-    postEl.querySelector("h2").textContent = post.title.toUpperCase();
-    postEl.querySelector("p").textContent = post.body;
-    postEl.querySelector("li").id = post.id;
-    listElement.append(postEl);
+  try{
+    const responseData = await sendHttpRequest(
+      "GET",
+      "https://jsonplaceholder.typicode.com/posts"
+    );
+  
+    const listOfPost = responseData;
+  
+    for (const post of listOfPost) {
+      const postEl = document.importNode(postTemplate.content, true);
+      postEl.querySelector("h2").textContent = post.title.toUpperCase();
+      postEl.querySelector("p").textContent = post.body;
+      postEl.querySelector("li").id = post.id;
+      listElement.append(postEl);
+    }
+  } catch (error){
+    console.error("Error getting post: ", error.message);
   }
-
   postsLoaded = true;
 };
 
