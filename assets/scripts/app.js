@@ -38,13 +38,11 @@ const fetchPosts = async () => {
   const listOfPost = responseData;
 
   for (const post of listOfPost) {
-    // if (!deletedPostElement.has(post)) {
     const postEl = document.importNode(postTemplate.content, true);
     postEl.querySelector("h2").textContent = post.title.toUpperCase();
     postEl.querySelector("p").textContent = post.body;
     postEl.querySelector("li").id = post.id;
     listElement.append(postEl);
-    // }
   }
 
   postsLoaded = true;
@@ -65,9 +63,7 @@ const createPost = async (title, content) => {
       post
     );
 
-    // Verificar si la respuesta del servidor es válida
     if (createdPostResponse && createdPostResponse.id) {
-      // Utilizar directamente el ID del nuevo post para mostrar en la lista
       const postEl = document.importNode(postTemplate.content, true);
       postEl.querySelector("h2").textContent = post.title.toUpperCase();
       postEl.querySelector("p").textContent = post.body;
@@ -109,7 +105,6 @@ postList.addEventListener("click", async (event) => {
         `https://jsonplaceholder.typicode.com/posts/${postId}`
       );
 
-      // listItem.remove();
       deletedPostElement.push(listItem);
       listItem.remove();
     } catch (error) {
@@ -120,8 +115,6 @@ postList.addEventListener("click", async (event) => {
 
 
 restoreButton.addEventListener("click", async () => {
-  deletedPostElement.sort((a, b) => a.id - b.id);
-
   for (const deletedElement of deletedPostElement) {
     try {
       const createdPostResponse = await sendHttpRequest(
@@ -143,7 +136,6 @@ restoreButton.addEventListener("click", async () => {
     }
   }
 
-  // Ordenar todos los elementos en función de sus ID después de agregar los restaurados
   Array.from(listElement.children)
     .sort((a, b) => a.id - b.id)
     .forEach((element) => listElement.appendChild(element));
