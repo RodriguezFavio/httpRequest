@@ -1,27 +1,12 @@
 const listElement = document.querySelector(".posts");
 const postTemplate = document.getElementById("single-post");
 const form = document.querySelector("#new-post form");
-const fecthButton = document.getElementById("fecth-button");
+const fetchButton = document.getElementById("fecth-button");
 const restoreButton = document.getElementById("restore-button");
 const postList = document.querySelector("ul");
 
 let postsLoaded = false;
 const deletedPostElement = [];
-
-const sendHttpRequest = async (method, url, data = null) => {
-
-  const config = {
-    method: method,
-  }
-
-  if(data){
-    config.body = JSON.stringify(data);
-  }
-
-  const response = await fetch(url, config);
-  return await response.json();
-  
-};
 
 const fetchPosts = async () => {
   if (postsLoaded) {
@@ -29,12 +14,11 @@ const fetchPosts = async () => {
   }
 
   try {
-    const responseData = await sendHttpRequest(
-      "GET",
+    const response = await axios.get(
       "https://jsonplaceholder.typicode.com/posts"
     );
 
-    const listOfPost = responseData;
+    const listOfPost = response.data;
 
     for (const post of listOfPost) {
       const postEl = document.importNode(postTemplate.content, true);
@@ -44,7 +28,7 @@ const fetchPosts = async () => {
       listElement.append(postEl);
     }
   } catch (error) {
-    console.error("Error getting post: ", error.message);
+    console.error("Error getting post: ", error.response);
   }
   postsLoaded = true;
 };
@@ -58,17 +42,16 @@ const createPost = async (title, content) => {
   };
 
   try {
-    const createdPostResponse = await sendHttpRequest(
-      "POST",
+    const response = await axios.post(
       "https://jsonplaceholder.typicode.com/posts",
       post
     );
 
-    if (createdPostResponse && createdPostResponse.id) {
+    if (response) {
       const postEl = document.importNode(postTemplate.content, true);
-      postEl.querySelector("h2").textContent = post.title.toUpperCase();
-      postEl.querySelector("p").textContent = post.body;
-      postEl.querySelector("li").id = post.userId;
+      postEl.querySelector("h2").textContent = response.data.title.toUpperCase();
+      postEl.querySelector("p").textContent = response.data.body;
+      postEl.querySelector("li").id = response.data.userId;
 
       listElement.prepend(postEl);
 
@@ -77,11 +60,11 @@ const createPost = async (title, content) => {
       console.error("invalid response from server");
     }
   } catch (error) {
-    console.error("Error creating post:", error.message);
+    console.error("Error creating post:", error.response);
   }
 };
 
-fecthButton.addEventListener("click", fetchPosts);
+fetchButton.addEventListener("click", fetchPosts);
 
 form.addEventListener("submit", async (event) => {
   event.preventDefault();
@@ -101,8 +84,7 @@ postList.addEventListener("click", async (event) => {
     const listItem = event.target.closest("li");
     const postId = listItem.id;
     try {
-      await sendHttpRequest(
-        "DELETE",
+      await axios.delete(
         `https://jsonplaceholder.typicode.com/posts/${postId}`
       );
 
@@ -121,8 +103,7 @@ restoreButton.addEventListener("click", async () => {
 
   for (const deletedElement of deletedPostElement) {
     try {
-      const createdPostResponse = await sendHttpRequest(
-        "POST",
+      const response = await axios.post(
         "https://jsonplaceholder.typicode.com/posts",
         {
           title: deletedElement.querySelector("h2").textContent.toLowerCase(),
@@ -130,7 +111,7 @@ restoreButton.addEventListener("click", async () => {
         }
       );
 
-      if (createdPostResponse && createdPostResponse.id) {
+      if (response) {
         listElement.append(deletedElement);
       } else {
         console.error("Invalid response from server");
