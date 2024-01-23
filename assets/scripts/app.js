@@ -8,6 +8,12 @@ const postList = document.querySelector("ul");
 let postsLoaded = false;
 const deletedPostElement = [];
 
+const sortElementById = () => {
+  Array.from(listElement.children)
+  .sort((a, b) => a.id - b.id)
+  .forEach((element) => listElement.appendChild(element));
+}
+
 const fetchPosts = async () => {
   if (postsLoaded) {
     return;
@@ -52,9 +58,7 @@ const createPost = async (title, content) => {
       postEl.querySelector("h2").textContent = response.data.title.toUpperCase();
       postEl.querySelector("p").textContent = response.data.body;
       postEl.querySelector("li").id = response.data.userId;
-
-      listElement.prepend(postEl);
-
+      listElement.append(postEl);
       form.reset();
     } else {
       console.error("invalid response from server");
@@ -62,6 +66,7 @@ const createPost = async (title, content) => {
   } catch (error) {
     console.error("Error creating post:", error.response);
   }
+  sortElementById();
 };
 
 fetchButton.addEventListener("click", fetchPosts);
@@ -120,10 +125,6 @@ restoreButton.addEventListener("click", async () => {
       console.error("Error restoring post:", error.message);
     }
   }
-
-  Array.from(listElement.children)
-    .sort((a, b) => a.id - b.id)
-    .forEach((element) => listElement.appendChild(element));
-
+  sortElementById();
   deletedPostElement.length = 0;
 });
